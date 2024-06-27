@@ -251,6 +251,19 @@ impl MmapInner {
         )
     }
 
+    /// Open an MAP_NOSYNC memory map.
+    #[cfg(target_os = "linux")]
+    pub fn map_nosync(len: usize, file: RawFd, offset: u64, populate: bool) -> io::Result<MmapInner> {
+        let populate = if populate { MAP_POPULATE } else { 0 };
+        MmapInner::new(
+            len,
+            libc::PROT_READ | libc::PROT_WRITE,
+            libc::MAP_SHARED | libc::MAP_NOSYNC | populate,
+            file,
+            offset,
+        )
+    }
+
     pub fn map_copy(len: usize, file: RawFd, offset: u64, populate: bool) -> io::Result<MmapInner> {
         let populate = if populate { MAP_POPULATE } else { 0 };
         MmapInner::new(

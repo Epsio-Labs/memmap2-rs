@@ -424,6 +424,14 @@ impl MmapOptions {
             .map(|inner| MmapMut { inner })
     }
 
+    #[cfg(target_os = "linux")]
+    pub unsafe fn map_nosync<T: MmapAsRawDesc>(&self, file: T) -> Result<MmapMut> {
+        let desc = file.as_raw_desc();
+
+        MmapInner::map_nosync(self.get_len(&file)?, desc.0, self.offset, self.populate)
+            .map(|inner| MmapMut { inner })
+    }
+
     /// Creates a copy-on-write memory map backed by a file.
     ///
     /// Data written to the memory map will not be visible by other processes,
